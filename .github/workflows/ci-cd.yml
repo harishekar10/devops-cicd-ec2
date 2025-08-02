@@ -1,0 +1,31 @@
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME=bobbysheki }}
+        password: ${{ secrets.DOCKER_PASSWORD Secrets }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        push: true
+        tags: yourdockerhubusername/flask-webapp:latest
+
+    - name: SSH deploy to AWS EC2
+      uses: appleboy/ssh-action@v0.1.8
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          docker pull yourdockerhubusername/flask-webapp:latest
+          docker stop flask-webapp || true
+          docker rm flask-webapp || true
+          docker run -d -p 5000:5000 --name flask-webapp yourdockerhubusername/flask-webapp:latest
+~
+.github/workflows/ci-cd.yml[+] [unix] (00:37 02/08/2025)                           42,99 Bot
+-- INSERT --
+
